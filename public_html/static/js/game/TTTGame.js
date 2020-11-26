@@ -8,9 +8,15 @@ var TTTGame = (function(){
     function TTTGame(phaserGame) {
         this.game = phaserGame;
 
+        this.hasStarted = false;
+
         this.mouseTouchDown = false;
 
         this.arrTiles = [];
+
+        this.roadCount = 0;
+        this.nextObstacleIndex = 0;
+        this.arrObstacles = [];
 
         this.taxi = undefined;
         this.taxiX = TAXI_START_X;
@@ -34,8 +40,26 @@ var TTTGame = (function(){
         }
     };
 
+    TTTGame.prototype.calculateNextObstacleIndex = function() {
+        var minimumOffset = 3;
+        var maximumOffset = 10;
+        var num = Math.random() * (maximumOffset - minimumOffset);
+        this.nextObstacleIndex = this.roadCount + Math.round(num) + minimumOffset;
+    };
+
 
     TTTGame.prototype.generateRoad = function() {
+
+            this.roadCount++;
+            var tile = 'tile_road_1';
+            var isObstacle = false;
+
+            if (this.roadCount > this.nextObstacleIndex) {
+                tile = 'obstacle_1';
+                isObstacle = true;
+                this.calculateNextObstacleIndex();
+            };
+
           // sprite (x, y and key defined above)
           var sprite = new Phaser.Sprite(this.game, 0, 0, 'tile_road_1');
           this.game.world.addChildAt(sprite, 0);
@@ -72,6 +96,7 @@ var TTTGame = (function(){
         // this.game.load phaser loader for preloading assets key
         this.game.load.image('tile_road_1','/static/img/assets/tile_road_1.png');
         this.game.load.image('taxi', '/static/img/assets/taxi.png');
+        this.game.load.image('obstacle_1', '/static/img/assets/obstacle_1.png');
     };
 
     TTTGame.prototype.create = function() {
